@@ -8,7 +8,7 @@ typedef struct 		s_list_of_rooms
 	int				x;
 	int				y;
 	char			*name;
-	struct s_list_of_rooms	*next;
+	struct s_list_of_rooms	**next;
 }					t_room;
 
 t_room	*new_room(char *name)
@@ -27,6 +27,7 @@ t_room	*new_room(char *name)
 			return (NULL);
 		}
 		new_room->name = strdup(splitted_specs[0]);
+
 		new_room->x = ft_atoi(splitted_specs[1]);
 		new_room->y = ft_atoi(splitted_specs[2]);
 	}
@@ -43,31 +44,49 @@ t_room	*new_room(char *name)
 
 t_room	*get_rooms_and_coords(char ***lines, t_room **rooms)
 {
-	if (!strcmp((*lines)[0], "##start"))
+	if (strchr((*lines)[0], '-') != NULL)
+	{
+		printf("Yes: \n"/*, (*lines)[0]*/);
+		(*lines)++;
+	}
+	else if (!strcmp((*lines)[0], "##start"))
 	{
 		(*lines)++;
 		*rooms = new_room((*lines)[0]);
+		printf("START: %d, %d\n", (*rooms)->x, (*rooms)->y);
 	}
-	else if (!ft_strcmp((*lines)[0], "#comment") || !ft_strcmp((*lines)[0], "##comment"))
+	else if (!strcmp((*lines)[0], "##end"))
 	{
 		(*lines)++;
 		*rooms = new_room((*lines)[0]);
+		printf("END: %d, %d\n", (*rooms)->x, (*rooms)->y);
 	}
-	else if (!ft_strcmp((*lines)[0], "##end"))
+	else if (!ft_strcmp((*lines)[0], "#comment") || !ft_strcmp((*lines)[0], "##comment") || !ft_strcmp(ft_strsub((*lines)[0], 0, 6), "#anoth"))
 	{
 		(*lines)++;
-		*rooms = new_room((*lines)[0]);	
+		*rooms = new_room((*lines)[0]);
 	}
 	else
 	{
-		if ((*rooms)->next != NULL)
-		{
-			*rooms = new_room((*lines)[0]);
-		}
-		else
-			*rooms =  new_room((*lines)[0]);
+		*rooms = new_room((*lines)[0]);
+		//(*lines)++;
 	}
 	return (*rooms);
+}
+
+int		len(char ***s)
+{
+	unsigned int i;
+
+	i = 0;
+	while (((*s) + i))
+		i++;
+	return (i);
+}
+
+void	find_links(char ***lines, t_room **rooms)
+{
+
 }
 
 int		main(int argc, char **argv)
@@ -77,12 +96,14 @@ int		main(int argc, char **argv)
 	int 		i;
 	int			ant_amt;
 	t_room		*rooms;
+	t_room		*room_lst[100000];
+	int			nbl;
 	char		*room_name;
 	char 		s[1000000];
 	char		**lines;
 	char		**alias;
 
-	i = 0;
+	i = -1;
 	mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH;
 	fd = open ("map.txt", O_RDONLY | O_CREAT, mode);
 	read(fd, s, 1000000000);
@@ -91,26 +112,29 @@ int		main(int argc, char **argv)
 	alias = lines;
 	/*Map read test */
 	printf("Map:\n");
-	while (lines[i])
+	while (lines[++i])
 	{
 		ft_memcpy(lines[i], (lines[i] = ft_strtrim(lines[i])), ft_strlen(lines[i]));
-		printf("%s\n", lines[i++]);
+		//printf("%s\n", lines[i++]);
 	}
+	//nbl = len(&lines);
 	/* Map read end */
-
+	//printf("%d\n", nbl);
 	/* Ant read test */
-	printf("Before cut down: %s\n", lines[0]);
+	//printf("Before cut down: %s\n", lines[0]);
 	ant_amt = ft_atoi(lines[0]);
-	printf("After cut down: %s\n", lines[0]);
+	//lines++;
+	//printf("After cut down: %s\n", lines[0]);
 	/* Ant read end */
-	while (lines++)
-	{
-		get_rooms_and_coords(&lines, &rooms);
-		printf("Room name: %s,\tx: %d,\ty: %d\n", rooms->name, rooms->x, rooms->y);
-//		lines++;
-	}
-	printf("After cut down2: %s\n", lines[0]);
-
+	i = -1;
+	while (!ft_strchr(*lines, '-') && lines && *(lines++))
+		room_lst[++i] =  get_rooms_and_coords(&lines, &rooms);
+//	while (lines && ft_strchr(*lines, '-'))
+	//	find_links(&lines, &rooms);
+	room_lst[i] = 0;
+	i = -1;
+	while (room_lst[++i])
+		printf("Room name: %s,\tx: %d,\ty: %d\n", (room_lst[i])->name, (room_lst[i])->x, (room_lst[i])->y);
 	free(alias);
 	return (0);
 }
