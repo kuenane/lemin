@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: simzam <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2016/07/21 10:32:56 by simzam            #+#    #+#             */
+/*   Updated: 2016/07/21 10:32:59 by simzam           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -45,9 +57,11 @@ t_room	*new_room(char *name)
 			return (NULL);
 		}
 		new_room->name = ft_strdup(splitted_specs[0]);
-		if (splitted_specs && splitted_specs[1])
-		{new_room->x = ft_atoi(splitted_specs[1]);
-		new_room->y = ft_atoi(splitted_specs[2]);}
+		if (splitted_specs && (splitted_specs + 1))
+		{
+			new_room->x = ft_atoi(splitted_specs[1]);
+			new_room->y = ft_atoi(splitted_specs[2]);
+		}
 	}
 	else
 	{
@@ -143,40 +157,37 @@ int		main(void)
 	i = -1;
 	while (lines && !strchr(*lines, '-') && *(lines++))
 		rlst[++i] =  get_rooms_and_coords(&lines, &rooms);
-	while (lines && (strchr(*lines, '-')) && *(lines++))
+	while (lines && strchr(*lines, '-'))
 	{
 
-		int		i;
 		int		k;
 		char	**links;
 		t_room	*tmp;
 
-		i = -1;
 		k = 0;
-		while (lines && *lines && **lines &&  (strchr(*lines, '-')))
+		while (lines && *lines && **lines && (strchr(*lines, '-')))
 		{
-			++i;
-			while (strchr(lines[i], '#'))
+			if (strchr(*lines, '#'))
 			{
 				lines++;
-				i = 0;
 			}
-			links = ft_strsplit(lines[i], '-');
-			tmp = dictionary(links[0], &rlst);
-			tmp->links[len(tmp->links)] = ft_strdup(links[1]);
-			//printf("Room: %s\tis linked to room [%s]\n", dictionary(links[0], &rlst)->name, dictionary(links[0], &rlst)->links[0]);
-			tmp = dictionary(links[1], &rlst);
-			tmp->links[len(tmp->links)] = ft_strdup(links[0]);
-			//printf("Room: %s\tis linked to room [%s]\n\n", dictionary(links[1], &rlst)->name, dictionary(links[1], &rlst)->links[0]);
-			lines++;
-			i = 0;
+			else
+			{
+				links = ft_strsplit(*lines, '-');
+				tmp = dictionary(links[0], &rlst);
+				tmp->links[len(tmp->links)] = ft_strdup(links[1]);
+				//printf("Room %s's number of Links: %d\n", tmp->name, len(tmp->links));
+				//printf("Room: [%s] is linked to room [%s]\n", dictionary(links[0], &rlst)->name, dictionary(links[0], &rlst)->links[0]);
+				tmp = dictionary(links[1], &rlst);
+				tmp->links[len(tmp->links)] = ft_strdup(links[0]);
+				//printf("Room %s's number of Links: %d\n", tmp->name, len(tmp->links));
+				//printf("Room: %s is linked to room [%s]\n\n", dictionary(links[1], &rlst)->name, dictionary(links[1], &rlst)->links[0]);
+				lines++;
+			}
 		}
-	//	if (lines && !(strchr(*lines, '-')))
+		//if (lines && !(strchr(*lines, '-')))
 		//	lines++;
-		
-			printf("seemingly\n");
 	}
-	printf("seemingly %d\n", i);
 	rlst[rlen(rlst) + 1] = 0;
 	i = -1;
 	while (rlst[++i])
@@ -185,19 +196,21 @@ int		main(void)
 			printf("This is the start: %s\n", rlst[i]->name);
 		if ((rlst[i])->is_end)
 			printf("This is the end: %s\n", rlst[i]->name);
+		if (rlst[i]->is_end)
+			i = 1000;
 	}
 	i = -1;
 	int b;
-	while (rlst[++i])
+	while (rlst[++i] && i < rlen(rlst) - 1)
 	{
-		b = i;
-		//printf("Room name: %s,\tx: %d,\ty: %d\n", rlst[i]->name, rlst[i]->x, rlst[i]->y);
-		printf("Room: %s is linked to:\n", rlst[b]->name);
-		while (rlst && rlst[b] && rlst[b]->links[i])
-			printf("%s\n", rlst[b]->links[i++]);
-		i = b;
+		b = 0;
+	//	printf("Room name: %s,\tx: %d,\ty: %d\n", rlst[i]->name, rlst[i]->x, rlst[i]->y);
+		printf("Room: %s is linked to:\n", rlst[i]->name);
+		while (rlst && rlst[i] && rlst[i]->links[b])
+			printf("%s\n", rlst[i]->links[b++]);
+		//i = b;
 	}
-	printf("dictionary: %s\n", (dictionary("6", &rlst))->name);
+	//printf("Room: %s is at x: %d y: %d\n", (dictionary("0", &rlst))->name, (dictionary("0", &rlst))->x, (dictionary("0", &rlst))->y);
 	free(line_alias);
 	return (0);
 }
