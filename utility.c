@@ -36,10 +36,28 @@ t_room		*dictionary(char *key, t_room ***value)
 {
 	unsigned int		i;
 
+	if (!*value)
+		return (0);
 	i = 0;
 	while ((**value))
 	{
 		if (!ft_strcmp((*value)[i]->name, key))
+			return ((*value)[i]);
+		i++;
+	}
+	return (0);
+}
+
+t_room		*dictionary2(int key, t_room ***value)
+{
+	unsigned int		i;
+
+	if (!*value)
+		return (0);
+	i = 0;
+	while ((**value))
+	{
+		if ((*value)[i]->is_start == key)
 			return ((*value)[i]);
 		i++;
 	}

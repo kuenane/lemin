@@ -23,9 +23,9 @@ typedef struct 		s_list_of_rooms
 	int				y;
 	char			*name;
 	char			*links[10000];
+	int				num_ants;
 	int				is_start;
 	int				is_end;
-	int				is_non;
 	struct s_list_of_rooms	**next;
 }					t_room;
 
@@ -43,9 +43,11 @@ typedef struct  	s_the_farm
 }					t_farm;
 
 t_room				*dictionary(char *key, t_room ***value);
+t_room				*dictionary2(int key, t_room ***value);
 t_room				*new_room(char *name);
 t_room				*get_rooms_and_coords(char ***lines, t_room **rooms);
 void				get_links(char ***lines, t_room **rlst);
+char				*find_path(t_room *start, t_farm *farm);
 char				**read_file(int *fd, char *stream);
 int					len(char **s);
 int					rlen(t_room **s);
